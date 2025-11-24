@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "client": "alice@example.com",
+    "montant": 49.9,
+    "statut": "payee"
+  },
+  {
+    "id": 2,
+    "client": "bob@example.com",
+    "montant": 15.0,
+    "statut": "annulee"
+  },
+  {
+    "id": 3,
+    "client": "alice@example.com",
+    "montant": 19.9,
+    "statut": "payee"
+  },
+  {
+    "id": 4,
+    "client": "charlie@example.com",
+    "montant": 120.0,
+    "statut": "en_attente"
+  },
+  {
+    "id": 5,
+    "client": "bob@example.com",
+    "montant": 35.0,
+    "statut": "payee"
+  }
+]
