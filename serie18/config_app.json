@@ -1,0 +1,112 @@
+# td18_ex3_json.py
+import json
+import shutil
+from pathlib import Path
+from typing import Dict, Any, Tuple
+
+# Chemins des fichiers
+FICHIER_CONFIG = Path("config_app.json")
+FICHIER_BACKUP = Path("config_app_backup.json")
+FICHIER_TEMP = Path("config_app.json.tmp")
+
+def mettre_a_jour_config(config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Applique les règles de mise à jour à la configuration chargée.
+    """
+    
+    # 1. Mettre "debug" à false
+    config["debug"] = False
+    
+    # 2. Incrémenter la version (Méthode simple)
+    # STRATÉGIE CHOISIE : Incrémenter uniquement le dernier composant du numéro de version.
+    version_parts = config["version"].split('.')
+    if len(version_parts) == 3:
+        try:
+            # Incrémenter le numéro de patch (ex: 1.0.0 -> 1.0.1)
+            new_patch = int(version_parts[2]) + 1
+            version_parts[2] = str(new_patch)
+            config["version"] = ".".join(version_parts)
+        except ValueError:
+            print(f"AVERTISSEMENT: La version actuelle '{config['version']}' n'a pas un format numérique valide pour l'incrémentation.")
+    
+    # 3. Augmenter max_connexions
+    config["max_connexions"] += 10
+    
+    # 4. Ajouter le service "admin" si absent
+    if "admin" not in config["services"]:
+        config["services"].append("admin")
+        
+    # 5. Changer le thème
+    config["theme"] = "dark"
+    
+    return config
+
+def executer_mise_a_jour():
+    
+    if not FICHIER_CONFIG.exists():
+        print(f"ERREUR : Le fichier de configuration '{FICHIER_CONFIG}' est introuvable.")
+        return
+
+    ancienne_config: Dict[str, Any] = {}
+    
+    # --- 1. Lecture et gestion d'erreur JSON ---
+    try:
+        with FICHIER_CONFIG.open("r", encoding="utf-8") as f:
+            ancienne_config = json.load(f)
+            # Créer une copie pour comparer plus tard
+            config_avant_maj = ancienne_config.copy() 
+            
+    except json.JSONDecodeError as e:
+        print(f"ERREUR : Le fichier JSON '{FICHIER_CONFIG}' est invalide. Impossible de charger la configuration.")
+        print(f"Détails de l'erreur : {e}")
+        return
+    except IOError as e:
+        print(f"ERREUR de lecture/écriture : {e}")
+        return
+
+    print("Configuration actuelle chargée avec succès.")
+    
+    # --- 2. Sauvegarde ---
+    try:
+        shutil.copy(FICHIER_CONFIG, FICHIER_BACKUP)
+        print(f"Sauvegarde créée : {FICHIER_BACKUP}")
+    except Exception as e:
+        print(f"ERREUR lors de la sauvegarde : {e}")
+        # On peut choisir de continuer ou d'arrêter ici, nous continuons par simplicité
+        
+    # --- 3. Modification en mémoire ---
+    nouvelle_config = mettre_a_jour_config(ancienne_config)
+    
+    # --- 4. Écriture atomique (via fichier temporaire) ---
+    try:
+        # Écriture dans le fichier temporaire
+        with FICHIER_TEMP.open("w", encoding="utf-8") as f:
+            # indent=2 pour la lisibilité, ensure_ascii=False pour les caractères non-ASCII
+            json.dump(nouvelle_config, f, ensure_ascii=False, indent=2)
+            
+        # Remplacement atomique : garantit que soit l'ancienne, soit la nouvelle
+        # configuration est présente, même en cas de crash du système (évite la corruption).
+        FICHIER_TEMP.replace(FICHIER_CONFIG)
+        
+        print(f"\nSUCCÈS : Configuration mise à jour et remplacée dans '{FICHIER_CONFIG}'.")
+
+    except Exception as e:
+        print(f"ERREUR CRITIQUE lors de l'écriture ou du remplacement : {e}")
+        if FICHIER_TEMP.exists():
+            FICHIER_TEMP.unlink() # Nettoyer le fichier temporaire si possible
+
+    # --- 5. Affichage du diff simple ---
+    print("\n--- DIFFÉRENCES APPLIQUÉES ---")
+    
+    def afficher_diff(key):
+        return f"{key:<18}: Avant: {config_avant_maj.get(key)!r:<10} | Après: {nouvelle_config.get(key)!r}"
+
+    print(afficher_diff("version"))
+    print(afficher_diff("debug"))
+    print(afficher_diff("max_connexions"))
+    print(afficher_diff("services"))
+    print(afficher_diff("theme"))
+
+
+if __name__ == "__main__":
+    executer_mise_a_jour()

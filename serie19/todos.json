@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "titre": "Apprendre Python",
+    "fait": false
+  },
+  {
+    "id": 2,
+    "titre": "Lire la fiche JSON",
+    "fait": true
+  }
+
+  {
+  "utilisateur": "alice",
+  "derniere_id": 3,
+  "taches": [
+    {
+      "id": 1,
+      "titre": "Apprendre Python",
+      "fait": true
+    },
+    {
+      "id": 2,
+      "titre": "Lire la fiche JSON",
+      "fait": false
+    },
+    {
+      "id": 3,
+      "titre": "Terminer le TD 19",
+      "fait": false
+    }
+  ]
+}
+]

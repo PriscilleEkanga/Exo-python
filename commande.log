@@ -1,0 +1,8 @@
+2025-12-10 10:48:54 [DEBUG] __main__ - Commande reçue : {'id': 1, 'client': 'Alice', 'quantite': 3}
+2025-12-10 10:48:54 [INFO] __main__ - Vérification du stock...
+2025-12-10 10:48:54 [INFO] __main__ - Commande validée pour le client Alice (ID: 1)
+2025-12-10 10:48:54 [DEBUG] __main__ - Commande reçue : {'id': 2, 'client': 'Bob', 'quantite': 0}
+2025-12-10 10:48:54 [INFO] __main__ - Vérification du stock...
+2025-12-10 10:48:54 [ERROR] __main__ - Quantité invalide pour la commande: 2
+2025-12-10 10:48:54 [DEBUG] __main__ - Commande reçue : {}
+2025-12-10 10:48:54 [ERROR] __main__ - Commande vide
